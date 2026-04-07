@@ -1,3 +1,4 @@
+import logging
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from sqlmodel import SQLModel
@@ -5,10 +6,17 @@ from app.db import engine
 from app.api.account_routes import router as account_router
 from app.api.bank_routes import router as bank_router
 from app.startup import create_default_accounts
+from app.logging_config import setup_logging
+
+# Setup logging first
+setup_logging()
+logger = logging.getLogger(__name__)
 
 SQLModel.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+logger.info("Application starting up")
 
 # Serve index.html from the static directory
 @app.get("/")

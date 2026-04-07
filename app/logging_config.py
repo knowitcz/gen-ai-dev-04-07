@@ -1,0 +1,43 @@
+import logging
+import logging.handlers
+import sys
+from pathlib import Path
+
+
+def setup_logging(log_level: str = "INFO", log_file: str = "logs/app.log"):
+    """
+    Configure logging for the application
+    """
+    # Create logs directory if it doesn't exist
+    log_path = Path(log_file)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Create formatter
+    formatter = logging.Formatter(
+        fmt='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+
+    # Root logger configuration
+    root_logger = logging.getLogger()
+    root_logger.setLevel(getattr(logging, log_level.upper()))
+
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(formatter)
+    root_logger.addHandler(console_handler)
+
+    # File handler with rotation
+    file_handler = logging.handlers.RotatingFileHandler(
+        log_file,
+        maxBytes=10_000_000,  # 10MB
+        backupCount=5
+    )
+    file_handler.setFormatter(formatter)
+    root_logger.addHandler(file_handler)
+
+    # Reduce noise from libraries
+    logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
+    logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
+
+    return root_logger

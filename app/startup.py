@@ -1,9 +1,12 @@
+import logging
 from sqlmodel import select, func
 from app.db import get_session
 from app.models.account import Account
 from sqlalchemy.sql import text
 
 import os
+
+logger = logging.getLogger(__name__)
 
 def read_sql_file(sql_file_path):
     with open(sql_file_path, "r") as sql_file:
@@ -20,3 +23,4 @@ def create_default_accounts():
         sql_script = read_sql_file(sql_file_path)
         session.exec(text(sql_script))
         session.commit()
+    logger.info("Default accounts created successfully.")
